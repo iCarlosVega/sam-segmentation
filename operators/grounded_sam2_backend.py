@@ -63,7 +63,7 @@ def load_predictor(cache_dir: Path) -> dict:
 
     import torch
     from transformers import AutoProcessor, AutoModelForZeroShotObjectDetection
-    from sam2.build_sam import build_sam2_video_predictor
+    from sam2.sam2_video_predictor import SAM2VideoPredictor
 
     cache_dir.mkdir(parents=True, exist_ok=True)
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -74,8 +74,9 @@ def load_predictor(cache_dir: Path) -> dict:
         gdino_id, cache_dir=str(cache_dir)
     ).to(device)
 
-    sam2_checkpoint = "facebook/sam2-hiera-small"
-    sam2_predictor = build_sam2_video_predictor(sam2_checkpoint, device=device)
+    sam2_predictor = SAM2VideoPredictor.from_pretrained(
+        "facebook/sam2-hiera-small", device=device
+    )
 
     return {
         "gdino_processor": gdino_processor,
