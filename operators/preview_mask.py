@@ -6,8 +6,6 @@ import lichtfeld as lf
 from lfs_plugins.types import Operator
 from lfs_plugins.props import StringProperty
 
-from .sam3_backend import load_predictor, run_video_segmentation
-
 _CACHE_DIR = Path.home() / ".lichtfeld" / "cache" / "sam3"
 
 
@@ -50,6 +48,7 @@ class PreviewMaskOperator(Operator):
             frame_path = Path(frames_tmp) / f"00000{ext}"
             frame_path.write_bytes(Path(camera_node.image_path).read_bytes())
 
+            from .sam3_backend import load_predictor, run_video_segmentation
             predictor = load_predictor(_CACHE_DIR)
             _frame_idx, mask = next(
                 run_video_segmentation(predictor, Path(frames_tmp), self.prompt)

@@ -6,8 +6,6 @@ import lichtfeld as lf
 from lfs_plugins.types import Operator
 from lfs_plugins.props import StringProperty
 
-from .sam3_backend import load_predictor, run_video_segmentation
-
 _CACHE_DIR = Path.home() / ".lichtfeld" / "cache" / "sam3"
 
 
@@ -46,6 +44,7 @@ class GenerateMasksOperator(Operator):
                 dst = Path(frames_tmp) / f"{i:05d}{ext}"
                 dst.write_bytes(Path(node.image_path).read_bytes())
 
+            from .sam3_backend import load_predictor, run_video_segmentation
             predictor = load_predictor(_CACHE_DIR)
             total = len(camera_nodes)
             from PIL import Image
