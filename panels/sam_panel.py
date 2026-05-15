@@ -12,6 +12,10 @@ class SAMPanel(lf.ui.Panel):
     def __init__(self):
         self._prompt = ""
 
+    @classmethod
+    def poll(cls, context) -> bool:
+        return True
+
     def draw(self, ui):
         ui.heading("SAM Segmentation")
 
