@@ -6,11 +6,41 @@ from typing import Iterator
 import numpy as np
 
 
-def _stub_triton_if_missing():
-    """Inject a no-op triton stub on Windows where triton has no wheels.
+class _PermissiveStub:
+    """Returns itself for any attribute, call, or item access — satisfies probes
+    without us having to enumerate every triton API."""
 
-    SAM 3 imports triton at module level. The @triton.jit-decorated EDT kernels
-    are only reached during video memory updates; the import itself must succeed.
+    def __getattr__(self, name):
+        return _PermissiveStub()
+
+    def __call__(self, *args, **kwargs):
+        if args and callable(args[0]):
+            return args[0]
+        return _PermissiveStub()
+
+    def __getitem__(self, item):
+        return _PermissiveStub()
+
+    def __iter__(self):
+        return iter([])
+
+    def __bool__(self):
+        return False
+
+
+class _PermissiveModule(types.ModuleType):
+    def __getattr__(self, name):
+        return _PermissiveStub()
+
+
+def _stub_triton_if_missing():
+    """Inject a permissive triton stub on Windows where triton has no wheels.
+
+    SAM 3 imports triton at module level for EDT kernels; torch._dynamo also
+    probes triton.language at import time. The stub returns a permissive object
+    for any attribute so both imports clear. Actual triton kernel execution
+    (e.g. EDT during video memory updates) will silently misbehave — acceptable
+    for text-prompted segmentation where EDT is not the primary path.
     """
     try:
         import triton  # noqa: F401
@@ -18,36 +48,13 @@ def _stub_triton_if_missing():
     except ModuleNotFoundError:
         pass
 
-    _triton = types.ModuleType("triton")
-    _tl = types.ModuleType("triton.language")
-
-    # jit / autotune — just return the function unchanged
-    _triton.jit = lambda fn=None, **kw: (fn if fn is not None else lambda f: f)
-    _triton.autotune = lambda configs, key, **kw: (lambda fn: fn)
-    _triton.heuristics = lambda values: (lambda fn: fn)
-    _triton.cdiv = lambda a, b: (a + b - 1) // b
-
-    class _Config:
-        def __init__(self, kwargs, num_warps=4, num_stages=2, **kw):
-            pass
-
-    _triton.Config = _Config
-
-    # triton.language — attributes referenced at definition time
-    for _name in [
-        "float16", "float32", "float64", "int1", "int8", "int16",
-        "int32", "int64", "uint8", "uint16", "uint32", "uint64",
-        "constexpr", "TRITON_MAX_TENSOR_NUMEL",
-        "load", "store", "arange", "zeros", "full", "broadcast_to",
-        "sum", "max", "min", "dot", "where", "sqrt", "exp", "log",
-        "abs", "sigmoid", "softmax", "trans", "cat", "program_id",
-        "num_programs", "multiple_of", "max_contiguous",
-    ]:
-        setattr(_tl, _name, None)
-
+    _triton = _PermissiveModule("triton")
+    _tl = _PermissiveModule("triton.language")
     _triton.language = _tl
     sys.modules["triton"] = _triton
     sys.modules["triton.language"] = _tl
+    sys.modules["triton.runtime"] = _PermissiveModule("triton.runtime")
+    sys.modules["triton.compiler"] = _PermissiveModule("triton.compiler")
 
 
 def load_predictor(cache_dir: Path):
