@@ -1,0 +1,22 @@
+[project]
+name = "sam-segment"
+version = "0.1.0"
+description = "Text-prompted SAM 3 object segmentation for GS datasets"
+authors = [{name = "vlcar"}]
+requires-python = ">=3.12"
+dependencies = [
+    "sam3 @ git+https://github.com/facebookresearch/sam3.git",
+    "torch>=2.7",
+    "Pillow>=10.0",
+    "numpy>=1.24,<2.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--import-mode=importlib"
+
+[tool.lichtfeld]
+plugin_api = ">=1,<2"
+lichtfeld_version = ">=0.5.2"
+hot_reload = true
+required_features = []
