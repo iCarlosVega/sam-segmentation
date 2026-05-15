@@ -48,7 +48,7 @@ class PreviewMaskOperator(Operator):
             frame_path = Path(frames_tmp) / f"00000{ext}"
             frame_path.write_bytes(Path(camera_node.image_path).read_bytes())
 
-            from .sam3_backend import load_predictor, run_video_segmentation
+            from .grounded_sam2_backend import load_predictor, run_video_segmentation
             predictor = load_predictor(_CACHE_DIR)
             _frame_idx, mask = next(
                 run_video_segmentation(predictor, Path(frames_tmp), self.prompt)

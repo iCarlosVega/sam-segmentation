@@ -44,7 +44,7 @@ class GenerateMasksOperator(Operator):
                 dst = Path(frames_tmp) / f"{i:05d}{ext}"
                 dst.write_bytes(Path(node.image_path).read_bytes())
 
-            from .sam3_backend import load_predictor, run_video_segmentation
+            from .grounded_sam2_backend import load_predictor, run_video_segmentation
             predictor = load_predictor(_CACHE_DIR)
             total = len(camera_nodes)
             from PIL import Image

@@ -5,11 +5,12 @@ description = "Text-prompted SAM 3 object segmentation for GS datasets"
 authors = [{name = "vlcar"}]
 requires-python = ">=3.12"
 dependencies = [
-    "sam3 @ git+https://github.com/facebookresearch/sam3.git",
-    "torch>=2.7",
+    "sam2",
+    "transformers>=4.45",
+    "accelerate",
+    "torch>=2.5,<2.8",
     "Pillow>=10.0",
     "numpy>=1.24,<2.0",
-    "einops",
 ]
 
 [tool.pytest.ini_options]
