@@ -1,7 +1,7 @@
 [project]
 name = "sam-segment"
 version = "0.1.0"
-description = "Text-prompted SAM 3 object segmentation for GS datasets"
+description = "Text-prompted Grounded SAM 2 object segmentation for GS datasets"
 authors = [{name = "vlcar"}]
 requires-python = ">=3.12"
 dependencies = [
