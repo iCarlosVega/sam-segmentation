@@ -48,13 +48,22 @@ def _stub_triton_if_missing():
     except ModuleNotFoundError:
         pass
 
-    _triton = _PermissiveModule("triton")
-    _tl = _PermissiveModule("triton.language")
+    _stub_file = __file__  # use this file's path so inspect.getfile() works
+
+    def _make(name):
+        m = _PermissiveModule(name)
+        m.__file__ = _stub_file
+        m.__spec__ = None
+        m.__path__ = []
+        return m
+
+    _triton = _make("triton")
+    _tl = _make("triton.language")
     _triton.language = _tl
     sys.modules["triton"] = _triton
     sys.modules["triton.language"] = _tl
-    sys.modules["triton.runtime"] = _PermissiveModule("triton.runtime")
-    sys.modules["triton.compiler"] = _PermissiveModule("triton.compiler")
+    sys.modules["triton.runtime"] = _make("triton.runtime")
+    sys.modules["triton.compiler"] = _make("triton.compiler")
 
 
 def load_predictor(cache_dir: Path):
