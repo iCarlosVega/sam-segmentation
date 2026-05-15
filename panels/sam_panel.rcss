@@ -1,0 +1,14 @@
+body.plugin-panel {
+    font-family: Inter;
+    padding: 0;
+}
+
+.panel-shell {
+    display: flex;
+    flex-direction: column;
+    padding: 8dp;
+}
+
+#im-root {
+    width: 100%;
+}

@@ -1,0 +1,10 @@
+<rml>
+<head>
+  <link type="text/rcss" href="sam_panel.rcss"/>
+</head>
+<body id="body" class="plugin-panel sam-segment-panel">
+  <div class="panel-shell">
+    <div id="im-root"></div>
+  </div>
+</body>
+</rml>

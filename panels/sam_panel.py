@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import lichtfeld as lf
 
 from ..operators.generate_masks import GenerateMasksOperator
@@ -5,9 +7,11 @@ from ..operators.preview_mask import PreviewMaskOperator
 
 
 class SAMPanel(lf.ui.Panel):
+    id = "sam_segment.sam_panel"
     label = "SAM Segmentation"
     space = lf.ui.PanelSpace.MAIN_PANEL_TAB
     order = 200
+    template = str(Path(__file__).resolve().with_name("sam_panel.rml"))
 
     def __init__(self):
         self._prompt = ""
