@@ -57,8 +57,18 @@ def _stub_triton_if_missing():
     sys.modules["triton.compiler"] = _make("triton.compiler")
 
 
+_predictor_cache: dict | None = None
+
+
 def load_predictor(cache_dir: Path) -> dict:
-    """Load GroundingDINO + SAM 2 VideoPredictor. Downloads weights on first run."""
+    """Load GroundingDINO + SAM 2 VideoPredictor. Downloads weights on first run.
+
+    Cached for the lifetime of the Python process so repeat runs skip the
+    ~15–30s model load. Holds ~4–6 GB VRAM until LichtFeld exits."""
+    global _predictor_cache
+    if _predictor_cache is not None:
+        return _predictor_cache
+
     _stub_triton_if_missing()
 
     import torch
@@ -78,12 +88,13 @@ def load_predictor(cache_dir: Path) -> dict:
         "facebook/sam2-hiera-small", device=device
     )
 
-    return {
+    _predictor_cache = {
         "gdino_processor": gdino_processor,
         "gdino_model": gdino_model,
         "sam2": sam2_predictor,
         "device": device,
     }
+    return _predictor_cache
 
 
 def run_video_segmentation(

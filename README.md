@@ -112,6 +112,7 @@ You can also swap to a stronger Grounding DINO variant for harder prompts by cha
 - **Windows + triton.** `sam2`/`torch` may import `triton` at module level on Windows, where it has no wheels. A permissive triton stub is installed in `grounded_sam2_backend.py` before the `sam2` import to satisfy attribute probes. This is harmless because the SAM 2 inference path doesn't actually execute triton kernels.
 - **Mask quality scales with the SAM 2 model.** The default `sam2-hiera-small` is fast; swap to `sam2-hiera-large` for ~2× sharper masks at the cost of VRAM and time.
 - **The first preview hangs for several minutes** while ~1.2 GB of weights download. Subsequent runs reuse the cached weights.
+- **Models stay resident in VRAM until LichtFeld exits.** Once loaded, Grounding DINO and SAM 2 (~4–6 GB combined) are kept in GPU memory so subsequent **Generate All Masks** runs skip the 15–30 s model-load step. If you need that VRAM back without restarting LichtFeld, unload the plugin.
 
 ---
 
