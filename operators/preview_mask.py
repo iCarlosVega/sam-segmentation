@@ -6,12 +6,12 @@ import lichtfeld as lf
 from lfs_plugins.types import Operator
 from lfs_plugins.props import StringProperty
 
-_CACHE_DIR = Path.home() / ".lichtfeld" / "cache" / "sam3"
+_CACHE_DIR = Path.home() / ".lichtfeld" / "cache" / "grounded_sam2"
 
 
 class PreviewMaskOperator(Operator):
     label = "Preview on Selected Camera"
-    description = "Run SAM 3 on the selected camera image and log mask path"
+    description = "Run Grounded SAM 2 on the selected camera image and log mask path"
 
     prompt: str = StringProperty(default="", maxlen=256)
 
