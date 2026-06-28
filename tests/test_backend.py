@@ -38,3 +38,48 @@ def test_stem_stripping():
     assert Path("images/00001.jpg").stem + ".png" == "00001.png"
     assert Path("/data/images/frame_042.jpeg").stem + ".png" == "frame_042.png"
     assert Path("00001.jpg").stem + ".png" == "00001.png"
+
+
+def test_predictor_cache_reuse():
+    """load_predictor returns the cached bundle without re-running the loader."""
+    from pathlib import Path
+    from sam_segment.operators import grounded_sam2_backend
+
+    sentinel = {"cached": True}
+    previous = grounded_sam2_backend._predictor_cache
+    grounded_sam2_backend._predictor_cache = sentinel
+    try:
+        result = grounded_sam2_backend.load_predictor(Path("/nonexistent"))
+        assert result is sentinel
+    finally:
+        grounded_sam2_backend._predictor_cache = previous
+
+
+def test_execute_rejects_empty_prompt():
+    """Empty prompt is rejected before any state mutation."""
+    from sam_segment.operators.generate_masks import (
+        GenerateMasksOperator,
+        mask_state,
+    )
+    op = GenerateMasksOperator()
+    op.prompt = ""
+    result = op.execute(None)
+    assert result == {"CANCELLED"}
+    assert mask_state["running"] is False
+
+
+def test_execute_rejects_concurrent_run():
+    """When a job is already running, a second execute() short-circuits."""
+    from sam_segment.operators.generate_masks import (
+        GenerateMasksOperator,
+        mask_state,
+    )
+    previous_running = mask_state["running"]
+    mask_state["running"] = True
+    try:
+        op = GenerateMasksOperator()
+        op.prompt = "the car"
+        result = op.execute(None)
+        assert result == {"CANCELLED"}
+    finally:
+        mask_state["running"] = previous_running

@@ -3,6 +3,12 @@ tests without LichtFeld installed."""
 import enum
 import sys
 import types
+from pathlib import Path
+
+# Make the plugin importable as `sam_segment` so tests can reach its modules.
+_plugin_root = Path(__file__).resolve().parent.parent
+if str(_plugin_root.parent) not in sys.path:
+    sys.path.insert(0, str(_plugin_root.parent))
 
 
 def _noop(*a, **kw):
